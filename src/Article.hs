@@ -1,7 +1,9 @@
-module Lib where
+module Article where
 
 import           Codec.Binary.UTF8.String (decodeString)
 import           Control.Monad
+import           Data.Char
+import           Data.List
 import           Network.HTTP
 import           Text.HTML.TagSoup
 
@@ -23,10 +25,23 @@ takeWhileNotClosed = findClosingTag 0
                                  else s : findClosingTag (n-1) section
       | otherwise = s : findClosingTag n section
 
-splitTags :: [Tag String] -> [String]
-splitTags = undefined
+splitParagraph :: String -> [String]
+splitParagraph "" = []
+splitParagraph s = a : splitParagraph (rmDot b)
+  where
+    (a, b) = break (=='。') s
+    rmDot "" = ""
+    rmDot (b:bs) = case b of
+      '。' -> bs
+      _    -> b:bs
 
-getArticle :: String -> String -> IO [String]
-getArticle url articleId = do
+sentences :: [Tag String] -> [String]
+sentences = splitParagraphs . hasText . map fromTagText . filter isTagText
+  where
+    hasText = filter $ any isLetter
+    splitParagraphs = foldr ((++) . splitParagraph) []
+
+scrapeArticle :: String -> String -> IO [String]
+scrapeArticle url articleId = do
   tags <- getArticleTags url articleId
-  return $ splitTags tags
+  return $ sentences tags
