@@ -5,10 +5,8 @@ import           Control.Monad
 import           Data.Char
 import           Data.List
 import           Network.HTTP
+import           Site                     (openURL)
 import           Text.HTML.TagSoup
-
-openURL :: String -> IO String
-openURL x = liftM decodeString $ getResponseBody =<< simpleHTTP (getRequest x)
 
 getArticleTags :: String -> String -> IO [Tag String]
 getArticleTags url articleId = do
