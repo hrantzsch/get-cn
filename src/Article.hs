@@ -1,6 +1,5 @@
 module Article where
 
-import           Codec.Binary.UTF8.String (decodeString)
 import           Control.Monad
 import           Data.Char
 import           Data.List
@@ -40,6 +39,6 @@ sentences = splitParagraphs . hasText . map fromTagText . filter isTagText
     splitParagraphs = foldr ((++) . splitParagraph) []
 
 scrapeArticle :: String -> String -> IO [String]
-scrapeArticle url articleId = do
+scrapeArticle articleId url = do
   tags <- getArticleTags url articleId
   return $ sentences tags
