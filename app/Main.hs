@@ -7,4 +7,5 @@ import           Text.Regex.Posix
 -- main :: IO ()
 main = do
   links <- getLinksMatching "http://news.sina.com.cn" (=~ "news.sina.com.cn/c/nd")
-  mapM (scrapeArticle "artibody") links
+  articles <- mapM (scrapeArticle "artibody") links
+  mapM_ (mapM putStr) articles
