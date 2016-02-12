@@ -8,6 +8,7 @@ import qualified Data.HashMap.Strict as M
 import           Site                (getLinksMatching)
 import           System.IO
 import           Text.Regex.Posix
+import Control.Exception
 
 type LinkMap = M.HashMap String Char
 
@@ -15,8 +16,10 @@ main :: IO ()
 main = do
   let linksFile = "links.txt"
   let dataFile = "data.txt"
-  links <- readFile linksFile
-  loop dataFile linksFile $ linkMapFromList $ lines links
+  l <- try (readFile linksFile) :: IO (Either SomeException String)
+  case l of
+    Left _      -> loop dataFile linksFile M.empty
+    Right links -> loop dataFile linksFile $ linkMapFromList $ lines links
 
 
 loop :: String -> String -> LinkMap -> IO ()
