@@ -33,7 +33,7 @@ splitParagraph :: String -> [String]
 splitParagraph "" = []
 splitParagraph s = a : splitParagraph b
   where
-    seperators = ['。', '，']
+    seperators = ['。', '，', '、', '；']
     (a, b) = break (`elem` seperators) $ rmSep s
     rmSep "" = ""
     rmSep (b:bs)

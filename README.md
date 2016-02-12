@@ -8,3 +8,8 @@ A tool to extract text samples from news.sina.com.cn articles.
 - Clone the repository
 - Run `stack build` to build
 - Run `stack exec get-cn-exe` to run
+
+## Notes
+
+- How to add new characters to split lines at?
+  - The responsible function is `splitParagraph` in `Article.hs`. You can add new characters to the `seperators` list.
