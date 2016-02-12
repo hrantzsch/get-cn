@@ -13,7 +13,7 @@ scrapeArticle :: String -> String -> IO [String]
 scrapeArticle targetId url = do
   c <- cursorFor url
   let artibody = c $// attributeIs "id" (T.pack targetId)
-  return $ map T.unpack (head artibody $// content)
+  return $ concatMap (splitParagraph . T.unpack) (head artibody $// content)
 
 cursorFor :: String -> IO Cursor
 cursorFor u = do
@@ -28,3 +28,14 @@ sanitize = reverse . maybeRmSpace . reverse
  where maybeRmSpace (x:xs) = case x of
         ' ' -> xs
         _   -> x:xs
+
+splitParagraph :: String -> [String]
+splitParagraph "" = []
+splitParagraph s = a : splitParagraph b
+  where
+    seperators = ['。', '，']
+    (a, b) = break (`elem` seperators) $ rmSep s
+    rmSep "" = ""
+    rmSep (b:bs)
+      | b `elem` seperators = bs
+      | otherwise = b : bs
