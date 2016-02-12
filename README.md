@@ -1,2 +1,2 @@
 # get-cn
-A Haskell tool to extract text from Chinese websites
+A tool to extract text samples from news.sina.com.cn articles.
