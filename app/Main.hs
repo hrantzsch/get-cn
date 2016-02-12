@@ -1,11 +1,11 @@
 module Main where
 
-import           Article            (scrapeArticle)
+import           Article             (scrapeArticle)
 import           Control.Concurrent
 import           Control.Monad
-import qualified Data.Char          as C
-import qualified Data.HashMap.Strict    as M
-import           Site               (getLinksMatching)
+import qualified Data.Char           as C
+import qualified Data.HashMap.Strict as M
+import           Site                (getLinksMatching)
 import           System.IO
 import           Text.Regex.Posix
 
@@ -32,7 +32,7 @@ loop dataFile linksFile known = do
   hClose lf
 
   -- wait, then start over
-  let delaySec = 60
+  let delaySec = 3600
   putStrLn $ "Running again in " ++ show (fromIntegral delaySec / 60) ++ " minutes."
   threadDelay $ delaySec * 1000000
   loop dataFile linksFile (M.union new known)
