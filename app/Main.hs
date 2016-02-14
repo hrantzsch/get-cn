@@ -46,7 +46,6 @@ run d known = do
   links <- liftM linkMapFromList $ getLinksMatching "http://news.sina.com.cn" (=~ "news.sina.com.cn/c/nd")
   let unknown = M.filterWithKey (\ k _ -> not $ M.member k known) links
   putStrLn $ "Found " ++ show (length links) ++ " links -- " ++ show (length unknown) ++ " new."
-  mapM_ putStrLn $ M.keys (M.difference links unknown :: LinkMap)
 
   forM_ (M.keys unknown) (\link -> do
     articles <- scrapeArticle "artibody" link
