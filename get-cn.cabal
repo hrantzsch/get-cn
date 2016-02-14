@@ -15,9 +15,10 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Article, Site
+  exposed-modules:     Article, Site, Support
   build-depends:       base >= 4.7 && < 5, bytestring, text, utf8-string
                      , html-conduit, HTTP, http-conduit, tagsoup, xml-conduit
+                     , optparse-applicative
   default-language:    Haskell2010
   -- other-extensions:    OverloadedStrings
 

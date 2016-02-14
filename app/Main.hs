@@ -8,6 +8,7 @@ import qualified Data.Char           as C
 import qualified Data.HashMap.Strict as M
 import           Data.Time.Clock
 import           Site                (getLinksMatching)
+import           Support
 import           System.IO
 import           Text.Regex.Posix
 
@@ -16,12 +17,18 @@ type LinkMap = M.HashMap String Char
 
 main :: IO ()
 main = do
-  let linksFile = "links.txt"
-  let dataFile = "data"
-  l <- try (readFile linksFile) :: IO (Either SomeException String)
-  case l of
-    Left _      -> loop dataFile linksFile M.empty
-    Right links -> loop dataFile linksFile $ linkMapFromList $ lines links
+  config <- getConfig
+  let lf = case linksfile config of
+            Just filename -> filename
+            _             -> "links.txt"
+  let df = case datafile config of
+            Just filename -> filename
+            _             -> "data"
+  l <- try (readFile lf) :: IO (Either SomeException String)
+  let knownLinks = case l of
+        Left _      -> M.empty
+        Right links -> linkMapFromList $ lines links
+  loop df lf knownLinks
 
 
 loop :: String -> String -> LinkMap -> IO ()
