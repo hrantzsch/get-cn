@@ -2,20 +2,22 @@ module Main where
 
 import           Article             (scrapeArticle)
 import           Control.Concurrent
+import           Control.Exception
 import           Control.Monad
 import qualified Data.Char           as C
 import qualified Data.HashMap.Strict as M
+import           Data.Time.Clock
 import           Site                (getLinksMatching)
 import           System.IO
 import           Text.Regex.Posix
-import Control.Exception
 
 type LinkMap = M.HashMap String Char
+
 
 main :: IO ()
 main = do
   let linksFile = "links.txt"
-  let dataFile = "data.txt"
+  let dataFile = "data"
   l <- try (readFile linksFile) :: IO (Either SomeException String)
   case l of
     Left _      -> loop dataFile linksFile M.empty
@@ -47,9 +49,11 @@ run d known = do
   let unknown = M.filterWithKey (\ k _ -> not $ M.member k known) links
   putStrLn $ "Found " ++ show (length links) ++ " links -- " ++ show (length unknown) ++ " new."
 
+  date <- liftM utctDay getCurrentTime
+  let filename = d ++ "_" ++ show date ++ ".txt"
   forM_ (M.keys unknown) (\link -> do
     articles <- scrapeArticle "artibody" link
-    df <- openFile d AppendMode
+    df <- openFile filename AppendMode
     mapM_ (hPutStrLn df) (curate articles)
     hClose df
     )
