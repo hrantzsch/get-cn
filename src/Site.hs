@@ -8,23 +8,24 @@ import qualified Data.Text                     as T
 import           Network.HTTP.Conduit          (HttpException, simpleHttp)
 import           Text.HTML.DOM                 (parseLBS)
 import           Text.XML.Cursor
+import           Text.Regex.Posix
 
 getLinksMatching :: String -> (String -> Bool) -> IO [String]
 getLinksMatching url filterPattern = do
-  c <- cursorFor url
-  let links = c $// attribute "href"
-  return $ filter filterPattern $ map T.unpack links
+  putStrLn $ "opening " ++ url
+  c <- try (cursorFor url) :: IO (Either HttpException Cursor)
+  case c of
+   Left _  -> do
+      putStrLn $ "Error: could not open url '" ++ url ++ "'"
+      return []
+   Right cursor -> do
+      let links = cursor $// attribute "href"
+      return $ filter filterPattern $ map (sanitize . T.unpack) links
 
 cursorFor :: String -> IO Cursor
 cursorFor url = do
-     page <- try (simpleHttp url) :: IO (Either HttpException B.ByteString)
-     case page of
-       Left _  -> cursorFor $ sanitize url
-       Right p -> return (fromDocument $ parseLBS p)
+  doc <- simpleHttp url
+  return (fromDocument $ parseLBS doc)
 
 sanitize :: String -> String
--- just removes trailing space atm
-sanitize = reverse . maybeRmSpace . reverse
- where maybeRmSpace (x:xs) = case x of
-        ' ' -> xs
-        _   -> x:xs
+sanitize url = url =~ ("http.*html" :: B.ByteString)

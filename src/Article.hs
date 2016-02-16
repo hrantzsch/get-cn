@@ -11,7 +11,11 @@ scrapeArticle :: String -> String -> IO [String]
 scrapeArticle targetId url = do
   c <- cursorFor url
   let artibody = c $// attributeIs "id" (T.pack targetId)
-  return $ concatMap (splitParagraph . T.unpack) (head artibody $// content)
+  case artibody of
+    [] -> do
+      putStrLn $ "Warning: " ++ targetId ++ " not found in article " ++ url
+      return []
+    _  -> return $ concatMap (splitParagraph . T.unpack) (head artibody $// content)
 
 splitParagraph :: String -> [String]
 splitParagraph "" = []
