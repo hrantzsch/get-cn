@@ -52,7 +52,7 @@ loop dataFile linksFile known = do
 
 run :: String -> LinkMap -> IO LinkMap
 run d known = do
-  links <- liftM linkMapFromList $ getLinksMatching "http://news.sina.com.cn" (=~ "doc-ifxpm")
+  links <- liftM linkMapFromList $ getLinksMatching "http://news.sina.com.cn" (=~ "doc-")
   let unknown = M.filterWithKey (\ k _ -> not $ M.member k known) links
   putStrLn $ "Found " ++ show (length links) ++ " links -- " ++ show (length unknown) ++ " new."
 
