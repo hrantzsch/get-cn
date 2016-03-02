@@ -13,19 +13,21 @@ import           Text.Regex.Posix
 getLinksMatching :: String -> (String -> Bool) -> IO [String]
 getLinksMatching url filterPattern = do
   putStrLn $ "opening " ++ url
-  c <- try (cursorFor url) :: IO (Either HttpException Cursor)
+  c <- cursorFor url
   case c of
-   Left _  -> do
-      putStrLn $ "Error: could not open url '" ++ url ++ "'"
-      return []
-   Right cursor -> do
+    Just cursor -> do
       let links = cursor $// attribute "href"
       return $ filter filterPattern $ map (sanitize . T.unpack) links
+    Nothing     -> return []
 
-cursorFor :: String -> IO Cursor
+cursorFor :: String -> IO (Maybe Cursor)
 cursorFor url = do
-  doc <- simpleHttp url
-  return (fromDocument $ parseLBS doc)
+  doc <- try (simpleHttp url) :: IO (Either HttpException B.ByteString)
+  case doc of
+    Left _ -> do
+      putStrLn $ "Warning: could not open url '" ++ url ++ "'"
+      return Nothing
+    Right d -> return (Just $ fromDocument $ parseLBS d)
 
 sanitize :: String -> String
 sanitize url = url =~ ("http.*html" :: B.ByteString)

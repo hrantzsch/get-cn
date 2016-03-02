@@ -10,12 +10,15 @@ import           Text.XML.Cursor
 scrapeArticle :: String -> String -> IO [String]
 scrapeArticle targetId url = do
   c <- cursorFor url
-  let artibody = c $// attributeIs "id" (T.pack targetId)
-  case artibody of
-    [] -> do
-      putStrLn $ "Warning: " ++ targetId ++ " not found in article " ++ url
-      return []
-    _  -> return $ concatMap (splitParagraph . T.unpack) (head artibody $// content)
+  case c of
+    Just cursor -> do
+      let artibody = cursor $// attributeIs "id" (T.pack targetId)
+      case artibody of
+        [] -> do
+          putStrLn $ "Warning: " ++ targetId ++ " not found in article " ++ url
+          return []
+        _  -> return $ concatMap (splitParagraph . T.unpack) (head artibody $// content)
+    Nothing     -> return []
 
 splitParagraph :: String -> [String]
 splitParagraph "" = []

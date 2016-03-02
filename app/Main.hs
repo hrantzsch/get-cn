@@ -52,11 +52,11 @@ loop dataFile linksFile known = do
 
 run :: String -> LinkMap -> IO LinkMap
 run d known = do
-  links <- liftM linkMapFromList $ getLinksMatching "http://news.sina.com.cn" (=~ "doc-")
+  links <- linkMapFromList <$> getLinksMatching "http://news.sina.com.cn" (=~ "doc-")
   let unknown = M.filterWithKey (\ k _ -> not $ M.member k known) links
   putStrLn $ "Found " ++ show (length links) ++ " links -- " ++ show (length unknown) ++ " new."
 
-  date <- liftM utctDay getCurrentTime
+  date <- utctDay <$> getCurrentTime
   let filename = d ++ "_" ++ show date ++ ".txt"
   forM_ (M.keys unknown) (\link -> do
     article <- scrapeArticle "artibody" link
